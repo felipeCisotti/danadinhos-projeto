@@ -1,3 +1,16 @@
+/* Nova paleta da marca — mantida apenas como referência, sem aplicação.
+  --cor-turquesa: #74C5B8;
+  --cor-rosa: #DC82B4;
+  --cor-lilas: #C16FC5;
+  --cor-verde: #C2D362;
+  --cor-amarela: #F3D582;
+  --cor-laranja: #E2A453;
+  --cor-vermelha: #D65861;
+  --cor-texto: #242423;
+  --cor-fundo: #F5F4F0;
+  --cor-branca: #FFFFFF;
+  --cor-azul: var(--cor-turquesa);
+*/
 :root {
   --cor-fundo: #F9F5E6;
   --cor-laranja: #FD7611;
@@ -182,6 +195,7 @@ html, body {
   width: 100%;
   height: 360px;
   object-fit: cover;
+  object-position: 64% center;
   display: block;
   user-select: none;
   pointer-events: none;
@@ -443,13 +457,49 @@ html, body {
   gap: 48px;
 }
 
+.local-intro, .local-caption {
+  width: min(100%, 660px);
+  padding-inline: var(--page-gutter);
+  text-align: center;
+}
+
+.local-intro h2 {
+  color: var(--cor-rosa);
+  font-size: clamp(1.65rem, 4vw, 2.5rem);
+  margin-bottom: 12px;
+}
+
+.local-intro p, .local-caption p {
+  color: #5A5A5A;
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+.local-caption { min-height: 90px; }
+.local-caption h3 { color: #2D2D2D; font-size: 1.3rem; margin-bottom: 8px; }
+.local-controls { display: flex; align-items: center; justify-content: center; gap: 8px; max-width: 100%; }
+.local-nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  line-height: 1;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border: none;
+  border-radius: 50%;
+  background: var(--cor-branca);
+  color: var(--cor-rosa);
+  font-size: 2rem;
+  cursor: pointer;
+  box-shadow: 0 3px 12px rgba(0, 0, 0, 0.1);
+}
+.local-nav:hover { background: var(--cor-rosa); color: var(--cor-branca); }
+
 .local-carousel-track {
-  position: relative;
   width: 100%;
   height: clamp(180px, 54vw, 450px);
-  display: flex;
-  justify-content: center;
-  align-items: center;
 }
 
 .local-carousel-slide {
@@ -504,6 +554,7 @@ html, body {
   z-index: 0;
   opacity: 0;
   pointer-events: none;
+  visibility: hidden;
 }
 
 /* Dots */
@@ -806,6 +857,9 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
 }
 
 @media (max-width: 600px) {
+  .local-controls { gap: 2px; }
+  .local-carousel-dots { gap: 0; }
+  .local-dot { width: clamp(28px, 8vw, 44px); }
   .lista-festas-container { padding: 12px 16px 72px; }
   .lista-festas-carroussel img { width: 100%; }
   .carousel-btn { top: auto; bottom: 12px; transform: none; }

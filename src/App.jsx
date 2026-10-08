@@ -1,8 +1,9 @@
-import LogoPrincipal from '/src/assets/danadinhos-logo.png'
+import LogoPrincipal from '/src/assets/danadinhos-logo-transparente.png'
 import BannerPrincipal from '/src/assets/banner-principal.png'
-// import SobreFoto from '/src/assets/sec-sobre/sapo.jpg'
+import SobreFoto from '/src/assets/sec-sobre/DanadinhosFachada.png'
 import { useRef, useState } from 'react'
 import './App.css'
+import WelcomeIntro from './WelcomeIntro'
 
 import FestaAlmoco from '/src/assets/sec-festas/almoco.png'
 import FestaColegial from '/src/assets/sec-festas/colegial.png'
@@ -10,12 +11,20 @@ import FestaCoquetel from '/src/assets/sec-festas/coquetel.png'
 import FestaEscolar from '/src/assets/sec-festas/escolar.png'
 import FestaMacarrao from '/src/assets/sec-festas/macarrao.png'
 
-// import LocalSeriguela from '/src/assets/sec-local/seriguela.png'
-// import LocalTesoura from '/src/assets/sec-local/tesoura.png'
-// import LocalXicara from '/src/assets/sec-local/xicara.png'
+import LocalSalao from './assets/sec-local/salao-festas.webp'
+import LocalTrampolim from './assets/sec-local/trampolim-park.webp'
+import LocalBaby from './assets/sec-local/area-baby.webp'
+import LocalJogos from './assets/sec-local/jogos.webp'
+import LocalQuadra from './assets/sec-local/quadra.webp'
+import LocalCriancas from './assets/sec-local/criancas-brincando.webp'
+
+
 
 function App() {
   const carouselRef = useRef(null)
+  const headerLogoRef = useRef(null)
+  const [introPlaying, setIntroPlaying] = useState(true)
+  const [introBlocking, setIntroBlocking] = useState(true)
 
   const carouselImages = [
     { src: FestaAlmoco, alt: "Festa Almoço" },
@@ -26,10 +35,12 @@ function App() {
   ];
 
   const localImages = [
-    { /* src: LocalSeriguela, */ alt: "Foto 1" },
-    { /* src: LocalTesoura, */ alt: "Foto 2" },
-    { /* src: LocalXicara, */ alt: "Foto 3" },
-
+    { src: LocalSalao, alt: 'Salão com mesas preparadas e decoração de balões', title: 'Um salão para celebrar', description: 'Mesas preparadas, decoração acolhedora e um ambiente para reunir a família e os amigos.' },
+    { src: LocalTrampolim, alt: 'Crianças no espaço de camas elásticas e piscina de espuma', title: 'Trampolim Park', description: 'Camas elásticas e piscina de espuma para a criançada pular e aproveitar a festa.' },
+    { src: LocalBaby, alt: 'Área baby com brinquedo de nave, mini cozinha e oficina', title: 'Um mundo para os pequenos', description: 'Mini cozinha, oficina e brinquedos coloridos para soltar a imaginação.' },
+    { src: LocalJogos, alt: 'Máquinas de jogos eletrônicos e mesa de air game', title: 'Diversão a cada partida', description: 'Jogos eletrônicos e air game para compartilhar desafios e boas risadas.' },
+    { src: LocalQuadra, alt: 'Quadra de futebol cercada por redes, ao lado do escorregador', title: 'Espaço para brincar em equipe', description: 'Uma quadra de futebol para reunir os amigos e entrar na brincadeira.' },
+    { src: LocalCriancas, alt: 'Três crianças sentadas em um brinquedo colorido, com adesivos nos rostos', title: 'Momentos que viram memória', description: 'Brincadeiras compartilhadas e muita alegria para fazer parte da história de cada festa.' },
   ];
   const [activeLocalIndex, setActiveLocalIndex] = useState(0);
 
@@ -57,18 +68,20 @@ function App() {
   }
 
   return (
-    <div className='page'>
-      <header className='header-page'>
+    <div className={`page${introPlaying ? ' intro-playing' : ''}`}>
+      {introPlaying && <WelcomeIntro targetRef={headerLogoRef} onComplete={setIntroPlaying} onUnlock={setIntroBlocking} />}
+      <header className='header-page' inert={introPlaying && introBlocking}>
         <a href="/" className='logo-link' aria-label="Página Inicial Danadinhos">
           <img
             src={LogoPrincipal}
+            ref={headerLogoRef}
             alt="Danadinhos - A vida é uma festa"
             className='logo-principal'
           />
         </a>
       </header>
 
-      <main className='main-page'>
+      <main className='main-page' inert={introPlaying && introBlocking}>
         <section className='hero-section' aria-label='Boas-vindas ao Danadinhos'>
           <div className='hero-mobile'>
             <div className='hero-mobile-texto'>
@@ -131,8 +144,8 @@ function App() {
           {/* Left: Photo */}
           <div className='sobre-foto-container'>
             <div className='sobre-foto-frame'>
-              {/* <img src={SobreFoto} alt="Danadinhos - Nosso espaço de festas" className='sobre-foto' /> */}
-              <div className='sobre-foto foto-placeholder'>Foto do Buffet</div>
+              <img src={SobreFoto} alt="Danadinhos - Nosso espaço de festas" className='sobre-foto' />
+              {/* <div className='sobre-foto foto-placeholder'>Foto do Buffet</div> */}
             </div>
           </div>
 
@@ -141,11 +154,10 @@ function App() {
             <h2 className='sobre-saudacao'>CONHEÇA O</h2>
             <h3 className='sobre-titulo'>DANADINHOS —<br />A VIDA É UMA FESTA!</h3>
             <p className='sobre-descricao'>
-              Transformamos sonhos em festas inesquecíveis!
-              Com diversão garantida, ambiente seguro e muita
-              criatividade, cada celebração se torna uma
-              memória para toda a vida. Porque aqui,
-              cada momento é especial.
+              O <strong>Dana Dinho’s</strong> é o primeiro e mais tradicional buffet infantil de Monte Alto e região.
+              <strong> Estamos há mais de 20 anos no mercado de festas infantis. <br />
+              </strong> Realizamos também <strong>festas adultas, casamentos, debutantes, festas escolares e eventos corporativos.</strong>
+              <br />Nossos brinquedos são seguros, modernos e para <br /> operá-los temos uma equipe gentil, educada e apaixonada por comemorações.
             </p>
             <div className='sobre-assinatura'>
               <span className='sobre-assinatura-texto'>Danadinhos</span>
@@ -204,8 +216,12 @@ function App() {
           </div>
         </section>
 
-        <section id='local' className='imagens-local'>
+        <section id='local' className='imagens-local' aria-labelledby='local-titulo'>
           <div className='local-carousel-container'>
+            <div className='local-intro'>
+              <h2 id='local-titulo'>Conheça nosso espaço</h2>
+              <p>Um passeio pelo salão, pelos brinquedos e pelos momentos de diversão no Danadinhos.</p>
+            </div>
             <div className='local-carousel-track'>
               {localImages.map((img, index) => {
                 let position = 'hidden';
@@ -225,24 +241,18 @@ function App() {
                     onClick={() => setActiveLocalIndex(index)}
                     aria-label={`Ver foto: ${img.alt}`}
                     aria-pressed={index === activeLocalIndex}
+                    tabIndex={position === 'hidden' ? -1 : 0}
+                    aria-hidden={position === 'hidden' ? true : undefined}
                   >
-                    {/* <img src={img.src} alt={img.alt} /> */}
-                    <span className='foto-placeholder local-foto-placeholder'>{img.alt}</span>
+                    <img src={img.src} alt={img.alt} loading='lazy' decoding='async' />
                   </button>
                 );
               })}
             </div>
 
-            <div className='local-carousel-dots'>
-              {localImages.map((_, index) => (
-                <button
-                  key={index}
-                  className={`local-dot ${index === activeLocalIndex ? 'active' : ''}`}
-                  onClick={() => setActiveLocalIndex(index)}
-                  aria-label={`Ver foto ${index + 1}`}
-                  aria-pressed={index === activeLocalIndex}
-                />
-              ))}
+            <div className='local-caption' aria-live='polite' aria-atomic='true'>
+              <h3>{localImages[activeLocalIndex].title}</h3>
+              <p>{localImages[activeLocalIndex].description}</p>
             </div>
           </div>
         </section>
