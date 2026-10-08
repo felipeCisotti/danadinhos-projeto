@@ -1,0 +1,23 @@
+const { chromium } = require('C:/Users/DEV25MA/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+(async()=>{
+ const http=require('node:http'), fs=require('node:fs'), path=require('node:path');
+ const server=http.createServer((req,res)=>{const file=path.join(process.cwd(),'dist',req.url==='/'?'index.html':req.url); const ext=path.extname(file); res.setHeader('Content-Type',({'.html':'text/html','.js':'text/javascript','.css':'text/css','.png':'image/png','.webp':'image/webp'})[ext]||'application/octet-stream'); fs.createReadStream(file).on('error',()=>{res.statusCode=404;res.end()}).pipe(res)});
+ await new Promise(r=>server.listen(0,'127.0.0.1',r));
+ const browser=await chromium.launch({headless:true,channel:'msedge'});
+ const context=await browser.newContext();
+ const page=await context.newPage();
+ const url='http://127.0.0.1:'+server.address().port+'/';
+ await page.goto(url,{waitUntil:'domcontentloaded'});
+ await page.locator('.welcome-logo').waitFor({state:'visible'});
+ await page.getByRole('button',{name:'Pular abertura'}).click();
+ await page.reload({waitUntil:'domcontentloaded'});
+ await page.locator('.logo-principal').waitFor({state:'visible'});
+ if(await page.locator('.welcome-intro').count()) throw Error('Intro repeated on reload');
+ if(await page.locator('main').getAttribute('inert')!==null) throw Error('Page blocked');
+ await page.close();
+ const nextPage=await context.newPage();
+ await nextPage.goto(url,{waitUntil:'domcontentloaded'});
+ await nextPage.locator('.welcome-logo').waitFor({state:'visible'});
+ console.log('PASS: first visit shows intro; reload skips it; new tab shows it again.');
+ await browser.close(); server.close();
+})();

@@ -32,7 +32,6 @@ export default function WelcomeIntro({ targetRef, onComplete, onUnlock }) {
         if (disposed) return
         context.add(() => {
           const origin = logoRef.current.getBoundingClientRect()
-          const target = targetRef.current.getBoundingClientRect()
           gsap.set(logoRef.current, {
             left: origin.left, top: origin.top, width: origin.width,
             xPercent: 0, yPercent: 0, transform: 'none',
@@ -53,7 +52,9 @@ export default function WelcomeIntro({ targetRef, onComplete, onUnlock }) {
           timeline.to('.welcome-backdrop', { opacity: 0, duration: 0.6, ease: 'power2.inOut' }, 2)
           timeline.to('.welcome-skip', { autoAlpha: 0, duration: 0.2 }, 2)
           timeline.to(logoRef.current, {
-            left: target.left, top: target.top, width: target.width,
+            left: () => targetRef.current.getBoundingClientRect().left,
+            top: () => targetRef.current.getBoundingClientRect().top,
+            width: () => targetRef.current.getBoundingClientRect().width,
             duration: 1.45, ease: 'power3.inOut',
           }, 2.3)
         })
@@ -61,18 +62,13 @@ export default function WelcomeIntro({ targetRef, onComplete, onUnlock }) {
         finish()
       }
     }
-    const restart = () => {
-      context.revert()
-      start()
-    }
-    window.addEventListener('resize', restart)
+    // Uma execução por montagem; resize e scroll não reiniciam a abertura.
     start()
 
     return () => {
       disposed = true
       context.revert()
       window.clearTimeout(timeout)
-      window.removeEventListener('resize', restart)
       window.removeEventListener('keydown', onKey)
       document.body.style.overflow = previousOverflow
     }
