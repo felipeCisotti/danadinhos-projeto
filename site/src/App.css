@@ -1446,3 +1446,6 @@ a:focus-visible, button:focus-visible, [tabindex]:focus-visible {
     scroll-behavior: auto !important;
   }
 }
+.salvar-orcamento {background:#8b0aa6;color:white;border:0;border-radius:999px;padding:12px 24px;font:inherit;font-weight:700;cursor:pointer}
+.orcamento-aviso {position:fixed;z-index:30;right:clamp(16px,3vw,36px);bottom:108px;display:flex;align-items:center;gap:12px;width:min(320px,calc(100% - 32px));box-sizing:border-box;background:white;color:#35263a;border-left:4px solid var(--cor-rosa);border-radius:12px;padding:14px 12px 14px 16px;box-shadow:0 4px 24px #28173833}
+.orcamento-aviso button {cursor:pointer;background:transparent;border:0;color:inherit;font-size:24px;padding:4px 8px}

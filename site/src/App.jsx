@@ -32,7 +32,21 @@ function App() {
   const [introBlocking, setIntroBlocking] = useState(true)
   const [festaSelecionada, setFestaSelecionada] = useState(null)
   const [simuladorAberto, setSimuladorAberto] = useState(false)
-  const [preferencias, setPreferencias] = useState({ tipo: 2, convidados: 50, dia: 'semana' })
+  const padrao = { tipo: 2, convidados: 50, dia: 'semana' }
+  const [salvo, setSalvo] = useState(() => {
+    try {
+      const q = JSON.parse(localStorage.getItem('danadinhos:orcamento'))
+      return q && typeof q.mensagem === 'string' && Number.isInteger(q.convidados) && q.convidados > 0 ? q : null
+    } catch { return null }
+  })
+  const [preferencias, setPreferencias] = useState(salvo || padrao)
+  const [aviso, setAviso] = useState(0)
+  useEffect(() => {
+    if (!aviso) return
+    const timer = setTimeout(() => setAviso(0), 3000)
+    return () => clearTimeout(timer)
+  }, [aviso])
+
 
   const carouselImages = [
     {
@@ -242,7 +256,7 @@ function App() {
     '',
     'Podem me enviar os próximos passos, por favor?',
   ].join('\n')
-  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensagemOrcamento)}`
+  const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(salvo?.mensagem || 'Olá, equipe Danadinhos! Gostaria de saber mais sobre as festas.')}`
 
   return (
     <div className={`page${introPlaying ? ' intro-playing' : ''}`}>
@@ -270,7 +284,7 @@ function App() {
             Localização
           </a>
         </nav>
-        <button type='button' className='header-orcamento-btn' onClick={() => setSimuladorAberto(true)}>
+        <button type='button' className='header-orcamento-btn' onClick={() => {setPreferencias(salvo || padrao); setSimuladorAberto(true)}}>
           Solicitar orçamento
         </button>
       </header>
@@ -394,7 +408,14 @@ function App() {
             <h2 id='simulador-titulo'>Monte seu orçamento</h2>
             <p className='simulador-intro'>Escolha suas preferências e veja uma estimativa do pacote.</p>
 
-            <div className='simulador-form'>
+            <form id='preferencias-orcamento' className='simulador-form' onSubmit={event => {
+              event.preventDefault()
+              const novo = {...preferencias, convidados: quantidadeConvidados, mensagem: mensagemOrcamento}
+              try { localStorage.setItem('danadinhos:orcamento', JSON.stringify(novo)) } catch { /* disponível nesta página */ }
+              setSalvo(novo)
+              setSimuladorAberto(false)
+              setAviso(Date.now())
+            }}>
               <label>
                 Tipo de festa
                 <select
@@ -408,7 +429,7 @@ function App() {
                 Quantidade de convidados
                 <input
                   type='number'
-                  min='1'
+                  min='1' required step='1'
                   value={preferencias.convidados}
                   onChange={(event) => setPreferencias({ ...preferencias, convidados: event.target.value })}
                 />
@@ -423,7 +444,7 @@ function App() {
                   <option value='domingo'>Domingo ou feriado</option>
                 </select>
               </label>
-            </div>
+            </form>
 
             <div className='simulador-resultado' style={{ '--festa-cor': pacoteParaCalculo.theme }}>
               <span>Estimativa para {quantidadeConvidados} convidados</span>
@@ -432,6 +453,7 @@ function App() {
               {valorExtras === null && <small>Convidados extras devem ser confirmados com a equipe.</small>}
             </div>
             <p className='simulador-nota'>Valor sujeito à confirmação de disponibilidade, data e detalhes do evento.</p>
+            <button className='salvar-orcamento' type='submit' form='preferencias-orcamento'>Salvar orçamento</button>
           </div>
         </dialog>
 
@@ -673,6 +695,7 @@ function App() {
           <span>Feito para celebrar momentos felizes.</span>
         </div>
       </footer>
+      {aviso > 0 && <div className='orcamento-aviso'><span role='status'>Orçamento salvo! Clique no botão do WhatsApp para enviar.</span><button type='button' aria-label='Fechar notificação' onClick={() => setAviso(0)}>×</button></div>}
       <a
         className='whatsapp-flutuante'
         href={whatsappUrl}
