@@ -1,0 +1,15 @@
+import {build} from 'esbuild';
+import {mkdir,readFile,writeFile} from 'node:fs/promises';
+import {createServer} from 'node:http';
+await mkdir('.qa',{recursive:true});
+const mock=`let guests=[{id:'guest-1',name:'Convidado de teste',age:8,phone:'(11) 90000-0000',checked_in_at:null}]; let menu=null;
+export const loadReceptionParties=async()=>[{id:'party-1',client:'Festa de teste visual',event_date:'2026-11-12',event_time:'18:00:00',guests:1,menu:'Escolhas a confirmar com o cliente',status:'aprovado'}];
+export const loadReceptionParty=async()=>({guests:[...guests],menu});
+export const saveGuest=async(p,v,id)=>{if(id)guests=guests.map(g=>g.id===id?{...g,...v}:g);else guests.push({...v,id:crypto.randomUUID(),checked_in_at:null});};
+export const importGuests=async(p,rows)=>{for(const row of rows)if(!guests.some(g=>g.id===row.id))guests.push({...row,checked_in_at:null});};
+export const checkInGuest=async(p,id)=>{guests=guests.map(g=>g.id===id?{...g,checked_in_at:new Date().toISOString()}:g);};
+export const saveMenu=async(p,v)=>{menu=v;return v;};
+export const receptionError=()=> 'Falha no teste';`;
+await build({stdin:{contents:`import React from 'react';import {createRoot} from 'react-dom/client';import Reception from './src/Reception.jsx';createRoot(document.getElementById('root')).render(<Reception user={{email:'recepcao@teste.local'}} onSignOut={()=>{}}/>);`,loader:'jsx',resolveDir:process.cwd()},bundle:true,outfile:'.qa/reception.js',plugins:[{name:'isolated-fixture',setup(b){b.onResolve({filter:/reception-data$/},()=>({path:'fixture',namespace:'fixture'}));b.onLoad({filter:/.*/,namespace:'fixture'},()=>({contents:mock,loader:'js'}));}}]});
+await writeFile('.qa/index.html','<!doctype html><html lang="pt-BR"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><link rel="stylesheet" href="/reception.css"><title>QA isolado — Recepção</title><div id="root"></div><script src="/reception.js"></script></html>');
+createServer(async(req,res)=>{try{const routes={'/':'index.html','/reception.js':'reception.js','/reception.css':'reception.css'};const path=req.url==='/logo-danadinhos.png'?'public/logo-danadinhos.png':routes[req.url]?'.qa/'+routes[req.url]:null;if(!path){res.writeHead(404).end();return;}res.setHeader('Content-Type',path.endsWith('.css')?'text/css':path.endsWith('.js')?'text/javascript':path.endsWith('.png')?'image/png':'text/html');res.end(await readFile(path));}catch{res.writeHead(500).end();}}).listen(4181,'127.0.0.1',()=>console.log('QA fixture: http://127.0.0.1:4181'));

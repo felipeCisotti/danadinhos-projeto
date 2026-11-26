@@ -1,16 +1,10 @@
-# React + Vite
+# Danadinhos
+O site público fica em `site/`. A aplicação da equipe fica em `sistema/`, com login em `/admin/` e acesso por perfil.
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+Com Node 24 e npm, execute na raiz:
+1. `npm run setup` para instalar as dependências dos dois projetos.
+2. Configure `sistema/.env.local` conforme `sistema/.env.example` para habilitar o login. Consulte `sistema/README.md` para configurar banco e perfis.
+3. `npm start` para compilar e abrir o servidor de prévia. No endereço exibido, visite `/` ou `/admin`.
+4. `npm test` para os testes do sistema.
 
-Currently, two official plugins are available:
-
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
-
-## React Compiler
-
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
-
-## Expanding the Oxlint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+Para publicar, rode `npm run build` e envie o conteúdo de `dist/` à hospedagem estática. Preserve a pasta `admin/` e habilite o índice de diretório (index.html). Caso haja uma regra global que redirecione tudo ao site, priorize `/admin` e `/admin/` apontando para `/admin/index.html`. Só as variáveis públicas VITE_ devem fazer parte da compilação.

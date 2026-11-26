@@ -1,0 +1,277 @@
+.reception h2 {
+  font-size: 21px;
+  margin: 0 0 16px;
+}
+
+.reception h3 {
+  margin: 0 0 14px;
+}
+
+.reception-panel {
+  padding: 24px;
+}
+
+.reception p {
+  line-height: 1.6;
+}
+
+.reception button:disabled {
+  opacity: .5;
+  cursor: not-allowed;
+}
+
+.reception :focus-visible {
+  outline: 3px solid #1269c7;
+  outline-offset: 3px;
+}
+
+.reception label {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.reception input,
+.reception select,
+.reception textarea {
+  box-sizing: border-box;
+  width: 100%;
+  border: 1px solid #c8cfdd;
+  border-radius: 8px;
+  padding: 12px;
+  font: inherit;
+  background: white;
+  color: #273047;
+  margin: 0;
+}
+
+.reception textarea {
+  resize: vertical;
+}
+
+.reception-toolbar,
+.reception-actions,
+.reception-pagination {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.reception-toolbar {
+  margin-bottom: 18px;
+  justify-content: space-between;
+}
+
+.reception-toolbar>input,
+.reception-toolbar>select {
+  flex: 1;
+  min-width: 180px;
+}
+
+.party-picker {
+  flex: 1;
+  min-width: 200px;
+}
+
+.reception-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  margin: 20px 0;
+}
+
+.reception-stats article { gap: 8px; min-width: 0; }
+.reception-warning {
+  padding: 16px;
+  background: #fff1cc;
+  color: #694700;
+  border: 1px solid #e2be60;
+  border-radius: 10px;
+}
+
+.reception-error {
+  padding: 16px;
+  background: #fff0f1;
+  color: #9c2332;
+  border-radius: 10px;
+}
+
+.reception-notice {
+  padding: 16px;
+  background: #e8f8ed;
+  color: #176d38;
+  border-radius: 10px;
+}
+
+.reception-fields {
+  display: grid;
+  grid-template-columns: 2fr 1fr 2fr;
+  gap: 16px;
+  margin-bottom: 18px;
+}
+
+.reception-form {
+  background: #fbf7fa;
+  padding: 20px;
+  border-radius: 12px;
+  margin: 18px 0;
+}
+
+.reception-menu-fields {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin: 20px 0;
+}
+
+.reception-reference {
+  background: #f2f5fb;
+  padding: 16px;
+  white-space: pre-wrap;
+}
+
+.reception-table {
+  overflow: auto;
+}
+
+.reception table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 14px;
+}
+
+.reception td,
+.reception th {
+  padding: 14px 10px;
+  border-bottom: 1px solid #e5e8ef;
+}
+
+.reception th {
+  background: #f7f8fc;
+}
+
+.reception-pagination {
+  justify-content: flex-end;
+  margin: 20px 0;
+  font-size: 13px;
+}
+
+.reception-print {
+  display: none;
+}
+
+@media(max-width:700px) {
+  .reception-panel {
+    padding: 16px
+  }
+
+  .reception-fields,
+  .reception-menu-fields {
+    grid-template-columns: 1fr
+  }
+
+  .reception-stats {
+    gap: 8px
+  }
+
+  .reception-stats article {
+    padding: 12px;
+    font-size: 12px
+  }
+
+  .reception-stats {
+    grid-template-columns: repeat(auto-fit,minmax(125px,1fr))
+  }
+}
+
+@media print {
+  @page {
+    size: A4;
+    margin: 15mm;
+  }
+
+  body,
+  .reception {
+    background: white !important;
+    color: black !important;
+  }
+
+  .reception-screen {
+    display: none !important;
+  }
+
+  .reception-print {
+    display: block;
+    font: 11pt Arial, sans-serif;
+  }
+
+  .reception-print h1 {
+    font-size: 18pt;
+    margin-bottom: 18px;
+  }
+
+  .reception-print h2 {
+    font-size: 12pt;
+    margin: 0 0 6px;
+  }
+
+  .reception-print table {
+    font-size: 10pt;
+  }
+
+  .reception-print td,
+  .reception-print th {
+    border: 1px solid #aaa;
+    padding: 7px;
+    overflow-wrap: anywhere;
+  }
+
+  .reception-print thead {
+    display: table-header-group;
+  }
+
+  .reception-print tr,
+  .print-field {
+    break-inside: avoid;
+  }
+
+  .print-field {
+    margin-top: 14px;
+    border-bottom: 1px solid #aaa;
+  }
+
+  .print-field p {
+    min-height: 35px;
+    margin: 0 0 8px;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+  }
+
+  .print-text {
+    white-space: pre-wrap;
+  }
+
+  .print-signature {
+    margin-top: 28px;
+  }
+}
+
+.reception .csv-checkbox {
+  flex-direction: row;
+  align-items: center;
+  margin: 18px 0;
+}
+
+.reception .csv-checkbox input {
+  width: auto;
+}
+
+.reception table caption {
+  text-align: left;
+  padding: 14px 0;
+  color: #586379;
+}

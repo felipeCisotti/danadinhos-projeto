@@ -1,0 +1,61 @@
+-- Integration test: all fixture changes are rolled back.
+begin;
+set local role authenticated;
+select set_config('request.jwt.claims','{"app_metadata":{"role":"gestora"}}',true);
+do $$
+declare party uuid; person uuid; item uuid; movement uuid; bill uuid; assignment uuid; blocked boolean;
+begin
+ insert into public.parties(client,phone,event_date,event_time,guests,amount,status)
+ values('QA exclusão rollback','0',current_date,'18:00',1,100,'aprovado') returning id into party;
+ select id into bill from public.entries where party_id=party;
+ blocked:=false;
+ begin delete from public.entries where id=bill; exception when raise_exception then blocked:=true; end;
+ if not blocked then raise exception 'FAIL: automatic entry deletion'; end if;
+ insert into public.employees(name,job,phone,admission_date,kind)
+ values('QA exclusão rollback','Teste','0',current_date,'temporario') returning id into person;
+ insert into public.assignments(party_id,employee_id,job,fee) values(party,person,'Teste',10) returning id into assignment;
+ blocked:=false;
+ begin delete from public.employees where id=person; exception when foreign_key_violation then blocked:=true; end;
+ if not blocked then raise exception 'FAIL: linked employee deletion'; end if;
+ blocked:=false;
+ begin delete from public.parties where id=party; exception when foreign_key_violation then blocked:=true; end;
+ if not blocked or not exists(select 1 from public.entries where id=bill) then raise exception 'FAIL: atomic rollback'; end if;
+ delete from public.assignments where id=assignment;
+ if exists(select 1 from public.entries where assignment_id=assignment) then raise exception 'FAIL: daily cleanup'; end if;
+ delete from public.employees where id=person;
+ delete from public.parties where id=party;
+ if exists(select 1 from public.entries where id=bill) then raise exception 'FAIL: contract cleanup'; end if;
+ insert into public.entries(kind,description,amount,due_date) values('pagar','QA rollback',10,current_date) returning id into bill;
+ insert into public.payments(entry_id,amount,payment_date) values(bill,1,current_date);
+ blocked:=false;
+ begin delete from public.entries where id=bill; exception when foreign_key_violation then blocked:=true; end;
+ if not blocked then raise exception 'FAIL: paid entry deletion'; end if;
+ update public.payments set voided=true where entry_id=bill;
+ blocked:=false;
+ begin delete from public.entries where id=bill; exception when foreign_key_violation then blocked:=true; end;
+ if not blocked then raise exception 'FAIL: voided history deletion'; end if;
+ insert into public.entries(kind,description,amount,due_date) values('pagar','QA empty',10,current_date) returning id into bill;
+ delete from public.entries where id=bill;
+ insert into public.stock_items(name,category) values('QA rollback','Alimentos') returning id into item;
+ insert into public.stock_movements(item_id,quantity,reason) values(item,10,'QA entrada') returning id into movement;
+ insert into public.stock_movements(item_id,quantity,reason) values(item,-5,'QA saída');
+ blocked:=false;
+ begin delete from public.stock_movements where id=movement; exception when raise_exception then blocked:=true; end;
+ if not blocked then raise exception 'FAIL: negative stock deletion'; end if;
+ blocked:=false;
+ begin delete from public.stock_items where id=item; exception when foreign_key_violation then blocked:=true; end;
+ if not blocked then raise exception 'FAIL: linked stock deletion'; end if;
+ delete from public.stock_movements where item_id=item and quantity<0;
+ delete from public.stock_movements where id=movement;
+ perform set_config('request.jwt.claims','{"app_metadata":{"role":"cozinha"}}',true);
+ delete from public.stock_items where id=item;
+ if found then raise exception 'FAIL: cozinha delete permission'; end if;
+ perform set_config('request.jwt.claims','{"app_metadata":{"role":"recepcao"}}',true);
+ delete from public.stock_items where id=item;
+ if found then raise exception 'FAIL: recepcao delete permission'; end if;
+ perform set_config('request.jwt.claims','{"app_metadata":{"role":"gestora"}}',true);
+ delete from public.stock_items where id=item;
+ if not found then raise exception 'FAIL: manager delete permission'; end if;
+end $$;
+select 'PASS: deletion, dependencies, financial history, stock and RLS' as result;
+rollback;
