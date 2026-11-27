@@ -1,3 +1,4 @@
+import {useLiveRefresh} from './useLiveRefresh';
 import AreaLayout from './AreaLayout';
 import React,{useEffect,useRef,useState} from 'react';
 import {loadReceptionParties,loadReceptionParty,saveGuest,checkInGuest,saveMenu,importGuests,receptionError} from './reception-data';
@@ -28,25 +29,21 @@ export default function Reception({user,onSignOut,signingOut,authError,onBack}) 
   const dirty=menuFields.some(([key])=>menu[key]!==savedMenu[key]);
   dirtyRef.current=dirty;
 
-  async function refresh(id=partyId,initial=false) {
-    const version=++request.current;refreshing.current=true;setLoading(true);setError('');
+  async function refresh(id=partyId,initial=false,background=false) {
+    const version=++request.current;refreshing.current=true;if(!background)setLoading(true);setError('');
     try {
       const next=await loadReceptionParties();
       const selected=next.some(p=>p.id===id)?id:(next.find(p=>p.event_date===today()&&p.status==='aprovado')??next.filter(p=>p.event_date>=today()&&p.status==='aprovado').sort((a,b)=>a.event_date.localeCompare(b.event_date))[0]??next[0])?.id??'';
       const details=selected?await loadReceptionParty(selected):{guests:[],menu:null};
       if(version!==request.current)return;
       setParties(next);setPartyId(selected);setGuests(details.guests);
-      if(initial||!dirtyRef.current){const values={...emptyMenu,...details.menu};setMenu(values);setSavedMenu(values);}
+      if(initial||selected!==id||!dirtyRef.current){const values={...emptyMenu,...details.menu};setMenu(values);setSavedMenu(values);}
       setReady(true);
     }catch(e){if(version===request.current){setError(receptionError(e));setReady(false);}}
     finally{if(version===request.current){refreshing.current=false;setLoading(false);}}
   }
   useEffect(()=>{refresh('',true);return()=>{request.current++;};},[]);
-  useEffect(()=>{
-    if(!partyId)return;
-    const timer=setInterval(()=>{if(!lock.current&&!refreshing.current&&!document.hidden)refresh(partyId);},30000);
-    return()=>clearInterval(timer);
-  },[partyId]);
+  useLiveRefresh('recepcao',()=>refresh(partyId,false,true),()=>lock.current||refreshing.current);
   useEffect(()=>{
     if(!dirty)return;
     const warn=e=>{e.preventDefault();e.returnValue='';};window.addEventListener('beforeunload',warn);
@@ -86,7 +83,7 @@ export default function Reception({user,onSignOut,signingOut,authError,onBack}) 
             {form&&<GuestForm key={form.guest?.id??'new'} guest={form.guest} busy={busy||loading} onCancel={()=>setForm(null)} onSave={(values,id)=>mutate(async()=>{await saveGuest(partyId,values,id);setForm(null);},'Convidado salvo.')}/>}
             <div className="reception-toolbar"><input aria-label="Buscar convidado" placeholder="Buscar pelo nome…" value={search} onChange={e=>{setSearch(e.target.value);setPage(0);}}/><select aria-label="Filtrar entradas" value={filter} onChange={e=>{setFilter(e.target.value);setPage(0);}}><option value="">Todos os convidados</option><option value="entered">Já entraram</option><option value="waiting">Aguardando entrada</option></select></div>
             <div className="reception-table"><table><thead><tr>{['Nome','Idade','Telefone','Entrada','Ações'].map(h=><th key={h}>{h}</th>)}</tr></thead><tbody>{filtered.slice(currentPage*25,currentPage*25+25).map(g=><tr key={g.id}><td>{g.name}</td><td>{g.age}</td><td>{g.phone}</td><td>{entryTime(g.checked_in_at)}</td><td><div className="reception-actions"><button className="secondary" disabled={!allowed||readonly} onClick={()=>setForm({guest:g})}>Editar</button><button className="action" disabled={!allowed||party.status!=='aprovado'||!!g.checked_in_at} onClick={()=>{if(counts.full&&!window.confirm('O limite foi atingido. Registrar mais esta entrada e avisar a gestora?'))return;mutate(()=>checkInGuest(partyId,g.id),'Entrada registrada.');}}>{g.checked_in_at?'Já entrou':'Registrar entrada'}</button></div></td></tr>)}</tbody></table></div>{!filtered.length&&<p>Nenhum convidado encontrado.</p>}
-            <div className="reception-pagination"><button className="secondary" disabled={currentPage===0} onClick={()=>setPage(currentPage-1)}>Anterior</button><span>{filtered.length} convidados · Página {currentPage+1} de {pages}</span><button className="secondary" disabled={currentPage+1>=pages} onClick={()=>setPage(currentPage+1)}>Próxima</button></div><small>A entrada é registrada uma única vez. Não há registro de saída. A lista é atualizada a cada 30 segundos.</small>
+            <div className="reception-pagination"><button className="secondary" disabled={currentPage===0} onClick={()=>setPage(currentPage-1)}>Anterior</button><span>{filtered.length} convidados · Página {currentPage+1} de {pages}</span><button className="secondary" disabled={currentPage+1>=pages} onClick={()=>setPage(currentPage+1)}>Próxima</button></div><small>A entrada é registrada uma única vez. Não há registro de saída. A lista é atualizada em tempo real.</small>
           </section>}
           {tab==='import'&&<GuestImport key={partyId} party={party} existing={guests} busy={busy} disabled={!allowed||readonly} onImport={async rows=>{
             if(lock.current)throw new Error('Operação em andamento');

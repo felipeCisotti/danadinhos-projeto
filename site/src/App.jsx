@@ -22,6 +22,13 @@ const WHATSAPP_NUMBER = '5516997218967'
 
 
 
+function lerOrcamento() {
+    try {
+      const q = JSON.parse(localStorage.getItem('danadinhos:orcamento'))
+      return q && typeof q.mensagem === 'string' && Number.isInteger(q.convidados) && q.convidados > 0 ? q : null
+    } catch { return null }
+}
+
 function App() {
   const carouselRef = useRef(null)
   const carouselAnimationFrameRef = useRef(null)
@@ -33,12 +40,12 @@ function App() {
   const [festaSelecionada, setFestaSelecionada] = useState(null)
   const [simuladorAberto, setSimuladorAberto] = useState(false)
   const padrao = { tipo: 2, convidados: 50, dia: 'semana' }
-  const [salvo, setSalvo] = useState(() => {
-    try {
-      const q = JSON.parse(localStorage.getItem('danadinhos:orcamento'))
-      return q && typeof q.mensagem === 'string' && Number.isInteger(q.convidados) && q.convidados > 0 ? q : null
-    } catch { return null }
-  })
+  const [salvo,setSalvo]=useState(lerOrcamento)
+  useEffect(()=>{
+    const sync=e=>{if(e.storageArea===localStorage && (e.key==='danadinhos:orcamento'||e.key===null))setSalvo(lerOrcamento())}
+    window.addEventListener('storage',sync)
+    return ()=>window.removeEventListener('storage',sync)
+  },[])
   const [preferencias, setPreferencias] = useState(salvo || padrao)
   const [aviso, setAviso] = useState(0)
   useEffect(() => {

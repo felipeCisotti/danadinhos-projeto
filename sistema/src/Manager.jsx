@@ -1,3 +1,4 @@
+import {useLiveRefresh} from './useLiveRefresh';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { emptyData, loadData, saveRecord, deleteRecord, errorMessage } from './manager-data';
 import { statuses, money, dateLabel, today, sumMoney, paidFor, balanceFor, stockBalance, metrics, calendarDays, csvText } from './domain';
@@ -309,13 +310,14 @@ export default function Manager({ user, onSignOut, signingOut, authError, onRece
     setToastKey(k => k + 1);
     setNotice(msg);
   }
-  async function refresh() {
-    const version = ++request.current; setLoading(true); setError('');
+  async function refresh(background=false) {
+    const version = ++request.current; if(background!==true)setLoading(true); setError('');
     try { const next = await loadData(); if (version === request.current) setData(next); }
     catch (e) { if (version === request.current) setError(errorMessage(e)); }
     finally { if (version === request.current) setLoading(false); }
   }
   useEffect(() => { refresh(); return () => { request.current++; }; }, []);
+  useLiveRefresh('gestora',()=>refresh(true),()=>loading||mutation.current||!!modal||acting);
   const stats = useMemo(() => metrics(data, month), [data, month]);
   const low = data.stock_items.filter(i => i.active && stockBalance(i, data.stock_movements) <= Number(i.minimum));
   const partyName = id => data.parties.find(p => p.id === id)?.client ?? 'Sem festa';

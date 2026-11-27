@@ -97,3 +97,5 @@ O login com perfil `cozinha` abre Festas e cardápios, Checklist de tarefas e Es
 - Cozinha não altera festas, ficha de cardápio, quantidades planejadas ou estoque, nem recebe dados financeiros, telefones de clientes ou lista de convidados. Permissões impostas no banco.
 
 Migração `kitchen_planning_tasks_stock` aplicada ao projeto Danadinhos. Em ambientes novos, execute `database/kitchen.sql` depois de `database/reception.sql`. Teste transacional: `database/test-kitchen.sql` (ROLLBACK ao final). Prévia isolada: `node scripts/preview-kitchen.mjs`, porta 4182, sem dados reais.
+
+Sincronização em tempo real: após criar os módulos, aplique database/realtime.sql e depois database/realtime-signals.sql, uma única vez e nessa ordem. A publicação replica apenas os sinais por perfil.
