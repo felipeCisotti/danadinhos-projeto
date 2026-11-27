@@ -275,3 +275,10 @@
   padding: 14px 0;
   color: #586379;
 }
+@media screen and (max-width:700px) {
+  .reception .reception-toolbar > :is(input,select,label),.reception .party-picker {flex:1 1 100%;min-width:0;max-width:100%}
+  .reception :is(input,select,textarea),.login-page input {font-size:16px}
+  .reception .reception-actions button,.reception .reception-pagination button {white-space:normal;min-height:42px}
+  .reception .reception-table {max-width:100%;overflow-x:auto}
+  .reception .reception-panel,.reception .reception-fields > *, .reception .reception-menu-fields > * {min-width:0}
+}

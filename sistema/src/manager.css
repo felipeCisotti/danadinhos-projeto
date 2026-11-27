@@ -1059,3 +1059,30 @@ td button:disabled { opacity: .4; }
 .sidebar .extra-access-label { display:block; margin:16px 12px 6px; }
 .sidebar .extra-access-nav { margin-top:0; }
 @media (min-width:801px) { .sidebar { overflow-y:auto; } }
+
+@media screen {
+  .workspace,.workspace-main,.overview-grid > *, .field-grid > *, .detail-grid > * {min-width:0}
+  .manager-dialog {max-height:calc(100dvh - 24px);overflow:auto;overscroll-behavior:contain}
+  .table-scroll,.reception-table,.calendar-panel {overscroll-behavior-x:contain}
+}
+@media screen and (max-width:800px) {
+  .manager .sidebar {position:relative;inset:auto}
+  .sidebar-blobs {display:none}
+  .sidebar nav button {min-height:44px;flex:none}
+  .sidebar-bottom button {min-width:44px;min-height:44px}
+  .manager .workspace-main {padding-bottom:24px}
+  .workspace-header {height:auto;min-height:56px;flex-wrap:wrap;gap:8px;padding-block:8px}
+  .header-right-group,.heading-actions {flex-wrap:wrap}
+  .manager .toast {right:12px;bottom:12px;min-width:0;width:min(360px,calc(100% - 24px))}
+  .manager-dialog :is(input,select,textarea),.manager .toolbar :is(input,select) {font-size:16px;max-width:100%}
+  .manager .sidebar nav {scrollbar-width:thin}
+}
+@media screen and (max-width:540px) {
+  .workspace-header .header-right-group {flex:1 0 100%;justify-content:space-between;gap:6px}
+  .header-right-group .month-picker-dropdown {left:0;right:auto;max-width:calc(100vw - 36px)}
+  .manager .stats {grid-template-columns:repeat(auto-fit,minmax(min(145px,100%),1fr))}
+  .heading-actions > button {white-space:normal;min-height:42px}
+  .manager .toolbar :is(input,select) {min-width:0;flex:1 1 100%}
+  .dialog-heading {align-items:flex-start}
+  .dialog-heading h2,.detail-grid dd,.stat-card strong {overflow-wrap:anywhere}
+}
